@@ -35,17 +35,22 @@ def main(ip="127.0.0.1", port=8000):
                 request_body: dict = split_request[1] if len(split_request) > 1 else {}
             except JSONDecodeError:
                 request_body: dict = {}
-            response = router(method=method, endpoint=endpoint, body=request_body)
-            connection.sendall(create_http_response(response[0], response[1]))  # TODO: support views
+            response = router(method=method, endpoint=endpoint, body=request_body)  # TODO: error handling?
+            connection.sendall(create_http_response(response[0], response[1]))  # TODO: support views; optional redirect
             connection.close()
     except KeyboardInterrupt:  # except pass.. yis
         pass
+    except BaseException as e:  # TODO: no Broad exception pls
+        connection.sendall(create_http_response(e, 500))
+        connection.close()
 
     sock.close()
 
 
 def router(method: str, endpoint: str, body: json):
-    if endpoint in ["", "/index", "/", "/index.php", "/index.html"]:
+    print(f"getting endpoint: {endpoint} with method: {method}")  # TODO: remove debug print
+
+    if endpoint in ["", "/", "/index.php"]:
         return '{\"response\": \"hello potat\"}', 200 if check_method("GET", method) else '', 405
     return '', 404
 
