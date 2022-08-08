@@ -29,12 +29,14 @@ def main(ip="127.0.0.1", port=8000):
             request_info = request[0].split(" ")
             method = request_info[0]
             endpoint = request_info[1][1:]
+            #  request_body: dict = {}
             try:
-                request_body = json.loads(data.decode().split("\r\n\r\n")[1])
+                split_request: list = data.decode().split("\r\n\r\n")
+                request_body: dict = split_request[1] if len(split_request) > 1 else {}
             except JSONDecodeError:
-                request_body = {}
+                request_body: dict = {}
             response = router(method=method, endpoint=endpoint, body=request_body)
-            connection.sendall(create_http_response(response[0], response[1]))
+            connection.sendall(create_http_response(response[0], response[1]))  # TODO: support views
             connection.close()
     except KeyboardInterrupt:  # except pass.. yis
         pass
@@ -44,15 +46,15 @@ def main(ip="127.0.0.1", port=8000):
 
 def router(method: str, endpoint: str, body: json):
     if endpoint in ["", "/index", "/", "/index.php", "/index.html"]:
-        return create_http_response("hello potat", 200) if check_method("GET", method) else create_http_response("", 405)
-    return create_http_response("", 404)
+        return '{\"response\": \"hello potat\"}', 200 if check_method("GET", method) else '', 405
+    return '', 404
 
 
 def check_method(target_method: str, method: str) -> bool:
     return target_method.lower() == method.lower()
 
 
-def create_http_response(response_body: str, status_code: int):
+def create_http_response(response_body: str, status_code: int):  # TODO: rename to indicate it is json? support more?
     return f"HTTP/1.1 {status_code}\r\nContent-Type: application/json\r\nContent-Length: {len(response_body)}\r\n\r\n{response_body}".encode(
         "utf-8"
     )
