@@ -44,8 +44,8 @@ def main(ip="127.0.0.1", port=8000):
 
 def router(method: str, endpoint: str, body: json):
     if endpoint in ["", "/index", "/", "/index.php", "/index.html"]:
-        return "", 200 if check_method("GET", method) else "", 405
-    return "", 404
+        return create_http_response("", 200) if check_method("GET", method) else create_http_response("", 405)
+    return create_http_response("", 404)
 
 
 def check_method(target_method: str, method: str) -> bool:
