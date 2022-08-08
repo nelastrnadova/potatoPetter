@@ -25,7 +25,7 @@ def main(ip="127.0.0.1", port=8000):
         while running:
             connection, client_address = sock.accept()
             data = connection.recv(512)
-            request = data.decode().split("\r\n")
+            request = data.decode().split("\r\n")  # error handling
             request_info = request[0].split(" ")
             method = request_info[0]
             endpoint = request_info[1][1:]
@@ -36,7 +36,7 @@ def main(ip="127.0.0.1", port=8000):
             response = router(method=method, endpoint=endpoint, body=request_body)
             connection.sendall(create_http_response(response[0], response[1]))
             connection.close()
-    except KeyboardInterrupt:
+    except KeyboardInterrupt:  # except pass.. yis
         pass
 
     sock.close()
