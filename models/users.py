@@ -17,7 +17,9 @@ if __name__ == "__main__":
     test_db = Database(db_file=f"{ROOT_DIR}/test_database.db")
 
     nelala: User = User(username="nelala")
+    beethoven: User = User(username="beethoven")
     nelala.save(db=test_db)
+    beethoven.save(db=test_db)
 
     del test_db
 
