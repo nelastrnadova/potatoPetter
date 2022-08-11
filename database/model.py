@@ -1,13 +1,20 @@
+import inspect
+
 from database.column import Column
+from database.column_value import ColumnValue
 from database.database import Database
 
 
 class Model:
-    @classmethod
-    def __init__(cls, **kwargs):
-        for arg in kwargs:
-            col: Column = getattr(cls, arg)
-            col.set_value(kwargs[arg])
+    def __init__(self, **kwargs):
+        self.vals: dict = dict()
+        for col_name, col_cls in inspect.getmembers(self):
+            if not isinstance(col_cls, Column):
+                continue
+            if col_name not in kwargs:
+                continue
+            col_value = kwargs[col_name]
+            self.vals.update({col_name: ColumnValue(col_cls, col_value)})
 
     @classmethod
     def create_table(cls, db: Database):  # TODO: call automatically if table doesn't exist when used
@@ -42,13 +49,12 @@ class Model:
 
         return sql
 
-    @classmethod
-    def save(cls, db: Database) -> int:
-        if not cls.table_exists(db=db):
-            cls.create_table(db=db)
+    def save(self, db: Database) -> int:
+        if not self.table_exists(db=db):
+            self.create_table(db=db)
         # TODO: select from db
         # TODO: if not exists insert
-        return cls.insert(db=db)
+        return self.insert(db=db)
         # TODO: if exists
         # TODO: cls.update(cls, db=db)
 
@@ -57,25 +63,20 @@ class Model:
         table_name: str = cls._get_table_name()
         return db.table_exists(table_name)
 
-    @classmethod
-    def insert(cls, db: Database):
-        sql: str = cls._generate_sql_insert()
+    def insert(self, db: Database):
+        sql: str = self._generate_sql_insert()
         db.exec(sql)
         db.commit()
-        cls.id = db.get_last_id()   # TODO: load id by primary_key?
-        return cls.id
+        # TODO: set PK
+        return db.get_last_id()
 
-    @classmethod
-    def _generate_sql_insert(cls) -> str:
+    def _generate_sql_insert(self) -> str:
         sql: str = ""
-        table_name = cls._get_table_name()
+        table_name = self._get_table_name()
 
         columns: dict = dict()
-        for col_name, col_cls in cls.__dict__.items():
-            if not isinstance(col_cls, Column):
-                continue
-            if col_cls.has_been_set:
-                columns.update({col_name: f"'{col_cls.get_value_as_string()}'"})  # TODO: sqllite limited
+        for col_name in self.vals:
+            columns.update({col_name: f"'{self.vals[col_name].get_value_as_string()}'"})  # TODO: sqllite limited
 
         sql += f"INSERT INTO {table_name} ("
 
