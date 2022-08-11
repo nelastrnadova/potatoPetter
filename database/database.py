@@ -1,9 +1,11 @@
 import sqlite3
 from sqlite3 import Error
 
+from settings import ROOT_DIR
+
 
 class Database:
-    def __init__(self, db_file: str = "database.db"):
+    def __init__(self, db_file: str = f"{ROOT_DIR}/database.db"):
         self.conn = None
         try:
             self.conn = sqlite3.connect(db_file)
@@ -77,3 +79,6 @@ class Database:
 
     def exec(self, command: str):
         self.cursor.execute(command)
+
+    def __del__(self):
+        self.conn.close()
