@@ -7,3 +7,11 @@ class String(BaseType):
 
     def get_sql(self) -> str:
         return f"VARCHAR({self.max_length})"
+
+    @staticmethod
+    def is_valid(value: any) -> bool:
+        return True  # TODO
+
+    @staticmethod
+    def get_value_as_string(value: any) -> str:
+        return str(value)

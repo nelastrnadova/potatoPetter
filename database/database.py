@@ -77,8 +77,19 @@ class Database:
         self.conn.commit()
         return self.cursor.lastrowid
 
+    def table_exists(self, table_name: str) -> bool:
+        sql: str = f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}';"
+        self.cursor.execute(sql)
+        return bool(len(self.cursor.fetchall()))
+
     def exec(self, command: str):
-        self.cursor.execute(command)
+        return self.cursor.execute(command)
+
+    def commit(self):
+        self.conn.commit()
+
+    def get_last_id(self) -> int:
+        return self.cursor.lastrowid
 
     def __del__(self):
         self.conn.close()
