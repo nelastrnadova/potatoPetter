@@ -7,14 +7,16 @@ from database.database import Database
 
 class Model:
     def __init__(self, **kwargs):
-        self.vals: dict = dict()
+        self.cols: dict = dict()
         for col_name, col_cls in inspect.getmembers(self):
             if not isinstance(col_cls, Column):
                 continue
+            self.cols.update({col_name: col_cls})
+            setattr(self, col_name, None)  # TODO: none? mb just del?
             if col_name not in kwargs:
                 continue
             col_value = kwargs[col_name]
-            self.vals.update({col_name: ColumnValue(col_cls, col_value)})
+            setattr(self, col_name, ColumnValue(col_cls, col_value))
 
     @classmethod
     def create_table(cls, db: Database):  # TODO: call automatically if table doesn't exist when used
@@ -54,7 +56,7 @@ class Model:
             self.create_table(db=db)
         # TODO: select from db
         # TODO: if not exists insert
-        return self.insert(db=db)
+        return self.insert(db=db)  # TODO: set pk
         # TODO: if exists
         # TODO: cls.update(cls, db=db)
 
@@ -75,8 +77,10 @@ class Model:
         table_name = self._get_table_name()
 
         columns: dict = dict()
-        for col_name in self.vals:
-            columns.update({col_name: f"'{self.vals[col_name].get_value_as_string()}'"})  # TODO: sqllite limited
+        for col_name, col_cls in inspect.getmembers(self):
+            if not isinstance(col_cls, ColumnValue):
+                continue
+            columns.update({col_name: f"'{col_cls.get_value_as_string()}'"})  # TODO: sqllite limited
 
         sql += f"INSERT INTO {table_name} ("
 
