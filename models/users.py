@@ -9,7 +9,7 @@ class User(Model):
     table_name: str = "users"
     id = Column(column_type=Integer(), primary_key=True)
     username = Column(column_type=String(30), required=True, unique=True)
-    password = Column(column_type=String(255), required=True)
+    password = Column(column_type=String(255), required=True)  # TODO: hash/rehash
 
 
 if __name__ == "__main__":
