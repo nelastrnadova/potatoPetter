@@ -9,7 +9,7 @@ class GetMessages(BaseRoute):
         return '{"supported_methods": "POST"}', 405
 
     def post(self):
-        missing_params: list() = self.check_missing_params("user_to_id")
+        missing_params: list() = self.check_params_exist("user_to_id")
         if missing_params:
             return BaseRoute.get_missing_params_message(missing_params)
 

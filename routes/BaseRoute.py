@@ -17,7 +17,7 @@ class BaseRoute(ABC):
     def post(self):
         raise NotImplementedError
 
-    def check_missing_params(self, *args):
+    def check_params_exist(self, *args):
         missing_params: list() = list()
         for arg in args:
             if arg not in self.body:

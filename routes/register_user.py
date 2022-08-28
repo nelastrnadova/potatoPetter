@@ -9,7 +9,7 @@ class RegisterUser(BaseRoute):
         return '{"supported_methods": "POST"}', 405
 
     def post(self):
-        missing_params: list() = self.check_missing_params("username", "password")
+        missing_params: list() = self.check_params_exist("username", "password")
         if missing_params:
             return BaseRoute.get_missing_params_message(missing_params)
 
