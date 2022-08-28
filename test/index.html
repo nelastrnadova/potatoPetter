@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PotatOS</title>
+    <style>
+        #user_info {display: none}
+        #chat_div {display: none}
+        #user_id {display: none}
+    </style>
+</head>
+<body>
+    <div id="user_info">
+        <span>Username: </span>
+        <span id="username">None</span><br>
+        <span id="user_id">None</span>
+    </div>
+
+    <div id="login_form">
+        <label for="login_username">Username: </label>
+        <input type="text" id="login_username"><br>
+        <label for="login_password">Password: </label>
+        <input type="text" id="login_password"><br>
+        <button onclick="login_user()">Login</button>
+        <button onclick="register_user()">Register (DONT USE MAIN PASSWORD; IT WILL NOT BE SECURED!!)</button>
+    </div>
+
+    <br>
+    <div id="chat_div">
+        <input type="text" id="new_message"><button onclick="send_message()">Send</button><br>
+        <div id="chat_log"></div>
+    </div>
+
+    <br><br>
+    <div id="message_div">
+        <span>Last Server Message:</span><br>
+        <span id="server_message"></span>
+    </div>
+
+    <script type="application/javascript">
+        let base_url = "http://127.0.0.1:8000"
+
+        function send_message() {
+            let xhr = new XMLHttpRequest();
+            let url = base_url+"/send_message";  <!-- TODO: no cross origin pls -->
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    document.querySelector('#new_message').value = ""
+                    load_new_messages()
+                }
+                if(xhr.readyState === 4 && xhr.status === 400) {
+                    document.querySelector('#server_message').innerText = xhr.responseText
+                }
+            };
+
+            let to_send = document.querySelector('#new_message').value
+            var data = JSON.stringify({"user_from_id": document.querySelector('#user_id').innerText, "text": to_send});
+
+            xhr.send(data);
+        }
+
+        function load_new_messages() {
+            let xhr = new XMLHttpRequest();
+            let url = base_url+"/get_messages";  <!-- TODO: no cross origin pls -->
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    let obj = JSON.parse(xhr.responseText);
+                    console.log(obj)
+                    let unprocessed_messages = obj.messages
+                    let messages = ""
+                    for (let i = 0; i < unprocessed_messages.length; i++) {
+                        let new_message = ""
+                        new_message += unprocessed_messages[i].user_from
+                        new_message += ": "
+                        new_message += unprocessed_messages[i].text
+                        new_message += "\n"
+
+                        messages += new_message
+                    }
+                    document.querySelector('#chat_log').innerText = messages //+= and pagination?
+                }
+                if(xhr.readyState === 4 && xhr.status === 400) {
+                    document.querySelector('#server_message').innerText = xhr.responseText
+                }
+            };
+
+            var data = JSON.stringify({"reverse": true});
+
+            xhr.send(data);
+        }
+
+        function login_user() {
+            let username = document.querySelector('#login_username');
+            let password = document.querySelector('#login_password');
+
+            let login_form_div = document.querySelector('#login_form');
+            let user_info_div = document.querySelector('#user_info');
+
+
+            let xhr = new XMLHttpRequest();
+            let url = base_url+"/login_user";  <!-- TODO: no cross origin pls -->
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    login_form_div.style.display = "none"
+                    user_info_div.style.display = "inherit"
+                    document.querySelector('#username').innerText = username.value
+                    let obj = JSON.parse(xhr.responseText);
+                    document.querySelector('#user_id').innerText = obj.user_id
+
+                    document.querySelector('#chat_div').style.display = "inherit"
+
+                    load_new_messages()
+                    let resource_timer = setInterval(load_new_messages, 2000);
+                }
+                if(xhr.readyState === 4 && xhr.status === 400) {
+                    document.querySelector('#server_message').innerText = xhr.responseText
+                }
+            };
+
+            var data = JSON.stringify({ "username": username.value, "password": password.value });
+
+            xhr.send(data);
+        }
+
+        function register_user() {
+            let username = document.querySelector('#login_username');
+            let password = document.querySelector('#login_password');
+
+            let xhr = new XMLHttpRequest();
+            let url = base_url+"/register_user";  <!-- TODO: no cross origin pls -->
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    login_user()
+                }
+                if(xhr.readyState === 4 && xhr.status === 400) {
+                    document.querySelector('#server_message').innerText = xhr.responseText
+                }
+            };
+
+            var data = JSON.stringify({"username": username.value, "password": password.value});
+
+            xhr.send(data);
+        }
+
+
+    </script>
+</body>
+</html>
