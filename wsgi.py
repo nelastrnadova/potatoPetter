@@ -39,10 +39,16 @@ def main(ip="127.0.0.1", port=8000):
                 request_body: dict = {}
 
             if check_method(method, "OPTIONS"):  # TODO
-                res = "HTTP/1.1 200\r\nAllow: GET, POST, OPTIONS\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: *\r\nAccess-Control-Allow-Headers: *\r\n".encode("utf-8")
+                res = "HTTP/1.1 200\r\n" \
+                      "Allow: GET, POST, OPTIONS\r\n" \
+                      "Access-Control-Allow-Origin: *\r\n" \
+                      "Access-Control-Allow-Methods: *\r\n" \
+                      "Access-Control-Allow-Headers: *\r\n"\
+                    .encode("utf-8")
                 connection.sendall(res)
                 connection.close()
                 continue
+
             try:
                 response = router(method=method, endpoint=endpoint, body=request_body)  # TODO: error handling?
             except BaseException as e:
