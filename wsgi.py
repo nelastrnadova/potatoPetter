@@ -37,6 +37,12 @@ def main(ip="127.0.0.1", port=8000):
                 request_body: dict = split_request[1] if len(split_request) > 1 else {}
             except JSONDecodeError:
                 request_body: dict = {}
+
+            if check_method(method, "OPTIONS"):  # TODO
+                res = "HTTP/1.1 200\r\nAllow: GET, POST, OPTIONS\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: *\r\nAccess-Control-Allow-Headers: *\r\n".encode("utf-8")
+                connection.sendall(res)
+                connection.close()
+                continue
             try:
                 response = router(method=method, endpoint=endpoint, body=request_body)  # TODO: error handling?
             except BaseException as e:
@@ -92,7 +98,7 @@ def check_method(target_method: str, method: str) -> bool:
 
 
 def create_http_response(response_body: str, status_code: int):  # TODO: rename to indicate it is json? support more?
-    return f"HTTP/1.1 {status_code}\r\nContent-Type: application/json\r\nContent-Length: {len(response_body)}\r\n\r\n{response_body}".encode(
+    return f"HTTP/1.1 {status_code}\r\nAccess-Control-Allow-Origin: *\r\nContent-Type: application/json\r\nContent-Length: {len(response_body)}\r\n\r\n{response_body}".encode(
         "utf-8"
     )
 
