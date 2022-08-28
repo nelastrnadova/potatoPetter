@@ -1,17 +1,14 @@
 import argparse
+import importlib
 import json
 import socket
 from json import JSONDecodeError
 
-from database import Database
-
 parser = argparse.ArgumentParser()
 parser.add_argument("-ip", type=str, help="Ip to run on", default="127.0.0.1")
 parser.add_argument("-port", type=int, help="port to run on", default=8000)
-parser.add_argument("-db", type=str, help="Path to db file", default="database.db")
+#  parser.add_argument("-db", type=str, help="Path to db file", default="database.db")
 args = parser.parse_args()
-
-db = Database(args.db)
 
 
 def main(ip="127.0.0.1", port=8000):
@@ -36,6 +33,8 @@ def main(ip="127.0.0.1", port=8000):
             except JSONDecodeError:
                 request_body: dict = {}
             response = router(method=method, endpoint=endpoint, body=request_body)  # TODO: error handling?
+            #  TODO: response handler
+            #  TODO: controller, views (db)
             connection.sendall(create_http_response(response[0], response[1]))  # TODO: support views; optional redirect
             connection.close()
     except KeyboardInterrupt:  # except pass.. yis
@@ -47,11 +46,37 @@ def main(ip="127.0.0.1", port=8000):
     sock.close()
 
 
-def router(method: str, endpoint: str, body: json):
-    print(f"getting endpoint: {endpoint} with method: {method}")  # TODO: remove debug print
+def snake_case_to_camel_case(snake_case: str) -> str:  # TODO: can crash easily, fix pl0x
+    should_next_upper: bool = False
+    camel_case: str = ""
+    for c in snake_case:
+        if camel_case == "":
+            camel_case += c.upper()
+            continue
+        if c == "_":
+            should_next_upper = True
+            continue
+        if should_next_upper:
+            should_next_upper = False
+            camel_case += c.upper()
+            continue
+        camel_case += c
+    return camel_case
 
-    if endpoint in ["", "/", "/index.php"]:
-        return '{\"response\": \"hello potat\"}', 200 if check_method("GET", method) else '', 405
+
+def router(method: str, endpoint: str, body: json):
+    # print(f"getting endpoint: '{endpoint}' with method: '{method}'")  # TODO: remove debug print
+    file_name: str = endpoint
+    class_name: str = snake_case_to_camel_case(file_name)
+    # TODO: check if exists
+    route_class = getattr(importlib.import_module(f"routes.{file_name}"), class_name)(body=body)
+    if check_method("GET", method):
+        return route_class.get()
+    elif check_method("POST", method):
+        return route_class.post()
+    else:
+        return '{"errors": "not implemented"}', 404
+
     return '', 404
 
 
