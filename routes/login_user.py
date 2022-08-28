@@ -9,10 +9,10 @@ class LoginUser(BaseRoute):
         return '{"supported_methods": "POST"}', 405
 
     def post(self):
-        if 'username' not in self.body:
-            return '{"missing_arguments": "username"}', 400
-        if 'password' not in self.body:
-            return '{"missing_arguments": "password"}', 400
+        missing_params: list() = self.check_missing_params("username", "password")
+        if missing_params:
+            return BaseRoute.get_missing_params_message(missing_params)
+
         # TODO: test
         user = User(username=self.body['username'])
         user.load(db=self.db, overwrite_cached=True)

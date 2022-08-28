@@ -16,3 +16,14 @@ class BaseRoute(ABC):
     @abstractmethod
     def post(self):
         raise NotImplementedError
+
+    def check_missing_params(self, *args):
+        missing_params: list() = list()
+        for arg in args:
+            if arg not in self.body:
+                missing_params.append(arg)
+        return missing_params
+
+    @staticmethod
+    def get_missing_params_message(missing_params: list):
+        return json.dumps({"errors": "missing params", "missing_params": missing_params}), 400

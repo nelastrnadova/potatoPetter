@@ -9,8 +9,10 @@ class GetMessages(BaseRoute):
         return '{"supported_methods": "POST"}', 405
 
     def post(self):
-        if isinstance(self.body, str) or 'user_to_id' not in self.body:
-            return '{"missing_arguments": "user_to_id"}', 400
+        missing_params: list() = self.check_missing_params("user_to_id")
+        if missing_params:
+            return BaseRoute.get_missing_params_message(missing_params)
+
         # TODO: what happens if there arent any messages?
         messages: [Message] = Message().get_instances_by_values(db=self.db, where_fields=["user_to_id"],
                                                                 where_values=[int(self.body['user_to_id'])])
