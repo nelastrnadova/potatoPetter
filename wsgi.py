@@ -37,7 +37,10 @@ def main(ip="127.0.0.1", port=8000):
                 request_body: dict = split_request[1] if len(split_request) > 1 else {}
             except JSONDecodeError:
                 request_body: dict = {}
-            response = router(method=method, endpoint=endpoint, body=request_body)  # TODO: error handling?
+            try:
+                response = router(method=method, endpoint=endpoint, body=request_body)  # TODO: error handling?
+            except BaseException as e:
+                response = (json.dumps({"errors": e}), 500)
             #  TODO: response handler
             #  TODO: controller, views (db)
             connection.sendall(create_http_response(response[0], response[1]))  # TODO: support views; optional redirect
