@@ -43,7 +43,7 @@ def main(ip="127.0.0.1", port=8000):
                       "Allow: GET, POST, OPTIONS\r\n" \
                       "Access-Control-Allow-Origin: *\r\n" \
                       "Access-Control-Allow-Methods: *\r\n" \
-                      "Access-Control-Allow-Headers: *\r\n"\
+                      "Access-Control-Allow-Headers: *\r\n" \
                     .encode("utf-8")
                 connection.sendall(res)
                 connection.close()
@@ -104,8 +104,15 @@ def check_method(target_method: str, method: str) -> bool:
 
 
 def create_http_response(response_body: str, status_code: int):  # TODO: rename to indicate it is json? support more?
-    return f"HTTP/1.1 {status_code}\r\nAccess-Control-Allow-Origin: *\r\nContent-Type: application/json\r\nContent-Length: {len(response_body)}\r\n\r\n{response_body}".encode(
-        "utf-8"
+    return f"" \
+           f"HTTP/1.1 {status_code}\r\n" \
+           f"Access-Control-Allow-Origin: *\r\n" \
+           f"Content-Type: application/json\r\n" \
+           f"Content-Length: {len(response_body)}\r\n" \
+           f"\r\n" \
+           f"{response_body}" \
+        .encode(
+            "utf-8"
     )
 
 
