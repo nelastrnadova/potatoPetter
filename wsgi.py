@@ -4,11 +4,16 @@ import json
 import socket
 from json import JSONDecodeError
 
+from database.database import Database
+from settings import ROOT_DIR
+
 parser = argparse.ArgumentParser()
 parser.add_argument("-ip", type=str, help="Ip to run on", default="127.0.0.1")
 parser.add_argument("-port", type=int, help="port to run on", default=8000)
-#  parser.add_argument("-db", type=str, help="Path to db file", default="database.db")
+parser.add_argument("-db", type=str, help="Path to db file", default=f"{ROOT_DIR}/database.db")
 args = parser.parse_args()
+
+db: Database = Database(db_file=args.db)
 
 
 def main(ip="127.0.0.1", port=8000):
@@ -69,14 +74,13 @@ def router(method: str, endpoint: str, body: json):
     file_name: str = endpoint
     class_name: str = snake_case_to_camel_case(file_name)
     # TODO: check if exists
-    route_class = getattr(importlib.import_module(f"routes.{file_name}"), class_name)(body=body)
+    route_class = getattr(importlib.import_module(f"routes.{file_name}"), class_name)(body=body, db=db)
     if check_method("GET", method):
         return route_class.get()
     elif check_method("POST", method):
         return route_class.post()
     else:
         return '{"errors": "not implemented"}', 404
-
     return '', 404
 
 
