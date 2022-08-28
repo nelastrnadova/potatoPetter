@@ -15,3 +15,10 @@ class String(BaseType):
     @staticmethod
     def get_value_as_string(value: any) -> str:
         return str(value)
+
+    @staticmethod
+    def get_value(value: any, skip_validation: bool = False) -> str:  # TODO: store value in here?
+        if not skip_validation:
+            if not String.is_valid(value):
+                raise AssertionError(f"{value} not a valid string type")  # TODO: better, custom error
+        return str(value)

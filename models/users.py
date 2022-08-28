@@ -8,7 +8,8 @@ from database.string import String
 class User(Model):
     table_name: str = "users"
     id = Column(column_type=Integer(), primary_key=True)
-    username = Column(column_type=String(30), required=True)
+    username = Column(column_type=String(30), required=True, unique=True)
+    password = Column(column_type=String(255), required=True)
 
 
 if __name__ == "__main__":
@@ -17,9 +18,11 @@ if __name__ == "__main__":
     test_db = Database(db_file=f"{ROOT_DIR}/test_database.db")
 
     nela: User = User(username="nelala", password="meow")
-    nela.username.set_value("nela")
+    nela.username = "nela"
     beethoven: User = User(username="beethoven", password="blept")
 
+    nela.save(db=test_db)
+    nela.username = "test"
     nela.save(db=test_db)
     beethoven.save(db=test_db)
 

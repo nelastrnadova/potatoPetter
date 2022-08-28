@@ -16,3 +16,10 @@ class Integer(BaseType):
     @staticmethod
     def get_value_as_string(value: any) -> str:
         return str(value)
+
+    @staticmethod
+    def get_value(value: any, skip_validation: bool = False) -> int:
+        if not skip_validation:
+            if not Integer.is_valid(value):
+                raise AssertionError(f"{value} not a valid integer type")  # TODO: better, custom error
+        return int(value)

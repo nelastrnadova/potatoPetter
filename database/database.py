@@ -82,6 +82,18 @@ class Database:
         self.cursor.execute(sql)
         return bool(len(self.cursor.fetchall()))
 
+    def create_table(self, table_name: str, column_sqls: list = None):  # TODO: mb accept sqls or Column dt
+        sql: str = ""
+        sql += f"CREATE TABLE {table_name} ("
+
+        if column_sqls is not None:  # mb faster w/o None check?
+            sql += ",\n".join(column_sqls)
+
+        sql += ");"
+
+        self.cursor.execute(sql)
+        self.conn.commit()
+
     def exec(self, command: str):
         return self.cursor.execute(command)
 
