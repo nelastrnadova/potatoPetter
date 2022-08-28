@@ -2,11 +2,12 @@ from database.base_type import BaseType
 
 
 class Column:
-    def __init__(self, column_type: BaseType, required: bool = False, primary_key: bool = False, unique: bool = False):
+    def __init__(self, column_type: BaseType, required: bool = False, primary_key: bool = False, unique: bool = False, foreign_key: any = None):
         self.column_type: BaseType = column_type
         self.required: bool = required
         self.primary_key: bool = primary_key
         self.unique: bool = True if self.primary_key else unique
+        self.foreign_key: any = foreign_key
 
     def is_primary_key(self) -> bool:  # TODO: get rid of getter? privatize self.primary_key?
         return self.primary_key

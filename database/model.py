@@ -40,25 +40,26 @@ class Model:
             pk: any = self.insert(db=db)  # TODO: Union[int, str]?
         return pk
 
-    def load(self, db: Database, test_exists: bool = False, overwrite_cached: bool = False) -> bool:  # TODO: check for pk and load by pk first?
+    def load(self, db: Database, test_exists: bool = False, overwrite_cached: bool = False, where_fields: [str] = None, where_values: [str] = None) -> bool:  # TODO: check for pk and load by pk first?
         table: str = self._get_table_name()
         pk: any = self.get_cached_pk_value()
         pk_col_name: str = self.get_pk_column_name()
 
-        where_fields: [str] = list()
-        where_values: [str] = list()
+        where_fields: [str] = list() if where_fields is None else where_fields
+        where_values: [str] = list() if where_values is None else where_values
 
-        if not pk:
-            for col_name, col_cls in self.cols.items():
-                if col_cls.unique:
-                    val: any = getattr(self, col_name)
-                    if isinstance(val, Column):
-                        continue
-                    where_fields.append(col_name)
-                    where_values.append(val)
-        else:
-            where_fields.append(pk_col_name)
-            where_values.append(pk)
+        if not where_fields:
+            if not pk:
+                for col_name, col_cls in self.cols.items():
+                    if col_cls.unique:
+                        val: any = getattr(self, col_name)
+                        if isinstance(val, Column):
+                            continue
+                        where_fields.append(col_name)
+                        where_values.append(val)
+            else:
+                where_fields.append(pk_col_name)
+                where_values.append(pk)
 
         if bool(where_fields):
             data: any = db.single_select(table=table, to_select="*", where_fields=where_fields, where_values=where_values)
@@ -121,3 +122,14 @@ class Model:
         columns, values = self.get_filled_columns_and_values()
         db.update(table=table, set_fields=columns, set_values=values, where_fields=[self.get_pk_column_name()], where_values=[self.get_cached_pk_value()])
         return self.get_cached_pk_value()  # TODO: tests
+
+    def get_instances_by_values(self, db: Database, where_fields: [str], where_values: [str]):
+        raw_entries: [tuple] = db.select(table=self._get_table_name(), to_select="*", where_fields=where_fields, where_values=where_values)
+        entries: list() = list()
+        col_names: [str] = list(self.cols.keys())
+        for raw_entry in raw_entries:
+            entry = self.__class__()
+            for i, col_name in enumerate(col_names):  # TODO: refactor + tests
+                setattr(entry, col_name, raw_entry[i])
+            entries.append(entry)
+        return entries
