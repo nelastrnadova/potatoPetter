@@ -133,3 +133,14 @@ class Model:
                 setattr(entry, col_name, raw_entry[i])
             entries.append(entry)
         return entries
+
+    def get_all_instances(self, db: Database):
+        raw_entries: [tuple] = db.select(table=self._get_table_name(), to_select="*")
+        entries: list() = list()
+        col_names: [str] = list(self.cols.keys())
+        for raw_entry in raw_entries:
+            entry = self.__class__()
+            for i, col_name in enumerate(col_names):  # TODO: refactor + tests
+                setattr(entry, col_name, raw_entry[i])
+            entries.append(entry)
+        return entries

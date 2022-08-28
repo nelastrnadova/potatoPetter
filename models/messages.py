@@ -10,7 +10,6 @@ class Message(Model):
     table_name: str = "messages"
     id = Column(column_type=Integer(), primary_key=True)
     user_from_id = Column(column_type=Integer(), required=True, foreign_key=Integer())
-    user_to_id = Column(column_type=Integer(), required=True, foreign_key=Integer())
     text = Column(column_type=String(255), required=True)
 
 
@@ -26,10 +25,10 @@ if __name__ == "__main__":
         nela.save(db=test_db)
     nela.load(db=test_db)
 
-    test_message: Message = Message(user_from_id=nela.id, user_to_id=nela.id, text="test")
+    test_message: Message = Message(user_from_id=nela.id, text="test")
     test_message.save(db=test_db)
 
-    messages: [Message] = Message().get_instances_by_values(db=test_db, where_fields=["user_to_id"], where_values=[nela.id])
+    messages: [Message] = Message().get_all_instances(db=test_db)
     for message in messages:
         from_user = User(id=message.user_from_id)
         from_user.load(db=test_db, overwrite_cached=True)

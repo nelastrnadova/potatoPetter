@@ -1,6 +1,7 @@
 import json
 
 from models.messages import Message
+from models.users import User
 from routes.BaseRoute import BaseRoute
 
 
@@ -9,12 +10,21 @@ class GetMessages(BaseRoute):
         return '{"supported_methods": "POST"}', 405
 
     def post(self):
-        missing_params: list() = self.check_params_exist("user_to_id")
-        if missing_params:
-            return BaseRoute.get_missing_params_message(missing_params)
-
         # TODO: what happens if there arent any messages?
-        messages: [Message] = Message().get_instances_by_values(db=self.db, where_fields=["user_to_id"],
-                                                                where_values=[int(self.body['user_to_id'])])
-        messages_text: [str] = [message.text for message in messages]
-        return json.dumps({"messages": messages_text}), 200
+        messages: [Message] = Message().get_all_instances(db=self.db)
+
+        to_return: list() = list()
+        for message in messages:
+            processed_message = {}
+
+            message_from_user = User(id=message.user_from_id)
+            message_from_user.load(db=self.db, overwrite_cached=True)
+
+            processed_message['user_from'] = message_from_user.username
+            processed_message['text'] = message.text
+
+            to_return.append(processed_message)
+        if 'reverse' in self.body and self.body['reverse']:
+            to_return.reverse()  # TODO: does this modify the list or return a new instance?
+
+        return json.dumps({"messages": to_return}), 200  # TODO: pls
