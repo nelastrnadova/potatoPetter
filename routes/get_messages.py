@@ -18,7 +18,7 @@ class GetMessages(BaseRoute):
             processed_message = {}
 
             message_from_user = User(id=message.user_from_id)
-            message_from_user.load(db=self.db, overwrite_cached=True)
+            message_from_user.load(db=self.db, overwrite_cached=True)  # TODO: check user exists
 
             processed_message['user_from'] = message_from_user.username
             processed_message['text'] = message.text
