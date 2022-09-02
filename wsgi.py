@@ -30,7 +30,10 @@ def main(ip="127.0.0.1", port=8000):
             request = data.decode().split("\r\n")  # error handling
             request_info = request[0].split(" ")
             method = request_info[0]
-            endpoint = request_info[1][1:]
+            try:
+                endpoint = request_info[1][1:]
+            except IndexError:  # TODO: test list range, not just except
+                endpoint = ""
             #  request_body: dict = {}
             try:
                 split_request: list = data.decode().split("\r\n\r\n")
