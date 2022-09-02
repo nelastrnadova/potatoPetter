@@ -55,15 +55,15 @@ def main(ip="127.0.0.1", port=8000):
             try:
                 response = router(method=method, endpoint=endpoint, body=request_body)  # TODO: error handling?
             except BaseException as e:
-                response = (json.dumps({"errors": e}), 500)
+                response = (json.dumps({"errors": e}), 500, "application/json")
             #  TODO: response handler
             #  TODO: controller, views (db)
-            connection.sendall(create_http_response(response[0], response[1]))  # TODO: support views; optional redirect
+            connection.sendall(create_http_response(response[0], response[1], response[2]))  # TODO: support views; optional redirect
             connection.close()
     except KeyboardInterrupt:  # except pass.. yis
         pass
     except BaseException as e:  # TODO: no Broad exception pls
-        connection.sendall(create_http_response(e, 500))
+        connection.sendall(create_http_response(e, 500, "application/json"))
         connection.close()
 
     sock.close()
@@ -95,30 +95,30 @@ def router(method: str, endpoint: str, body: json):
     try:
         route_class = getattr(importlib.import_module(f"routes.{file_name}"), class_name)(body=body, db=db)
     except BaseException as e:
-        return '', 404  # TODO no base exception pls
+        return '', 404, "application/json"  # TODO no base exception pls
     if check_method("GET", method):
         return route_class.get()
     elif check_method("POST", method):
         return route_class.post()
     else:
-        return '{"errors": "not implemented"}', 404
-    return '', 404
+        return '{"errors": "not implemented"}', 404, "application/json"
+    return '', 404, "application/json"
 
 
 def check_method(target_method: str, method: str) -> bool:
     return target_method.lower() == method.lower()
 
 
-def create_http_response(response_body: str, status_code: int):  # TODO: rename to indicate it is json? support more?
+def create_http_response(response_body: str, status_code: int, content_type: str):  # TODO: rename to indicate it is json? support more?
     return f"" \
            f"HTTP/1.1 {status_code}\r\n" \
            f"Access-Control-Allow-Origin: *\r\n" \
-           f"Content-Type: application/json\r\n" \
+           f"Content-Type: {content_type}\r\n" \
            f"Content-Length: {len(response_body)}\r\n" \
            f"\r\n" \
            f"{response_body}" \
         .encode(
-            "utf-8"
+        "utf-8"
     )
 
 

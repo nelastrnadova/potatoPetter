@@ -6,7 +6,7 @@ from routes.BaseRoute import BaseRoute
 
 class SendMessage(BaseRoute):
     def get(self):
-        return '{"supported_methods": "POST"}', 405
+        return '{"supported_methods": "POST"}', 405, "application/json"
 
     def post(self):
         missing_params: list() = self.check_params_exist("user_from_id", "text")
@@ -15,4 +15,4 @@ class SendMessage(BaseRoute):
 
         new_message = Message(user_from_id=self.body['user_from_id'], text=self.body['text'])
         new_message.save(db=self.db)
-        return json.dumps({"new_message_id": new_message.get_cached_pk_value()}), 200
+        return json.dumps({"new_message_id": new_message.get_cached_pk_value()}), 200, "application/json"

@@ -7,7 +7,7 @@ from routes.BaseRoute import BaseRoute
 
 class GetMessages(BaseRoute):
     def get(self):
-        return '{"supported_methods": "POST"}', 405
+        return '{"supported_methods": "POST"}', 405, "application/json"
 
     def post(self):
         # TODO: what happens if there arent any messages?
@@ -27,4 +27,4 @@ class GetMessages(BaseRoute):
         if 'reverse' in self.body and self.body['reverse']:
             to_return.reverse()  # TODO: does this modify the list or return a new instance?
 
-        return json.dumps({"messages": to_return}), 200  # TODO: pls
+        return json.dumps({"messages": to_return}), 200, "application/json"  # TODO: pls

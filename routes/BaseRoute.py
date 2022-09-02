@@ -26,4 +26,4 @@ class BaseRoute(ABC):
 
     @staticmethod
     def get_missing_params_message(missing_params: list):
-        return json.dumps({"errors": "missing params", "missing_params": missing_params}), 400
+        return json.dumps({"errors": "missing params", "missing_params": missing_params}), 400, "application/json"
