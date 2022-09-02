@@ -89,7 +89,10 @@ def router(method: str, endpoint: str, body: json):
     file_name: str = endpoint
     class_name: str = snake_case_to_camel_case(file_name)
     # TODO: check if exists
-    route_class = getattr(importlib.import_module(f"routes.{file_name}"), class_name)(body=body, db=db)
+    try:
+        route_class = getattr(importlib.import_module(f"routes.{file_name}"), class_name)(body=body, db=db)
+    except BaseException as e:
+        return '', 404  # TODO no base exception pls
     if check_method("GET", method):
         return route_class.get()
     elif check_method("POST", method):
