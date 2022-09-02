@@ -31,14 +31,22 @@ class Database:
         to_select: list,
         where_fields: [str] = None,
         where_values: list = None,
+        order_by: str = None,
+        desc: bool = False,
+        limit: int = None,
     ):
+        order_by_str: str = f"ORDER BY {order_by}" if order_by else ""
+        if desc:
+            order_by_str = f"{order_by_str} DESC"
+        limit_str: str = f"LIMIT {limit}" if limit else ""
+        add: str = f"{order_by_str} {limit_str}"
         if where_fields is not None:
             self.cursor.execute(
-                f"SELECT {', '.join(to_select)} FROM {table} WHERE {' AND '.join([field + ' = ?' for field in where_fields])}",
+                f"SELECT {', '.join(to_select)} FROM {table} WHERE {' AND '.join([field + ' = ?' for field in where_fields])} {add}",
                 where_values,
             )
         else:
-            self.cursor.execute(f"SELECT {', '.join(to_select)} FROM {table}")
+            self.cursor.execute(f"SELECT {', '.join(to_select)} FROM {table} {add}")
         return self.cursor.fetchall()
 
     def update(
