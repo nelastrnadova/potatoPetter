@@ -29,8 +29,7 @@ class Model:
         return self.table_name
 
     def save(self, db: Database) -> int:
-        if not self.table_exists(db=db):
-            self.create_table(db=db)
+        self.create_table_if_not_exists()
         # TODO: check if all fields are valid and filled/non needed. if not, return or error
         if self.load(db=db, test_exists=True):
             failed: bool = self.load(db=db, overwrite_cached=False)
@@ -134,7 +133,13 @@ class Model:
             entries.append(entry)
         return entries
 
-    def get_all_instances(self, db: Database, order_by: str = None, desc: bool = False, limit: int = None):
+    def create_table_if_not_exists(self, db: Database):
+        if not self.table_exists(db=db):
+            self.create_table(db=db)
+
+    def get_all_instances(self, db: Database, order_by: str = None, desc: bool = False, limit: int = None, create_table_if_not_exists: bool = True):
+        if create_table_if_not_exists:
+            self.create_table_if_not_exists()
         raw_entries: [tuple] = db.select(table=self._get_table_name(), to_select="*", order_by=order_by, desc=desc, limit=limit)
         entries: list() = list()
         col_names: [str] = list(self.cols.keys())
