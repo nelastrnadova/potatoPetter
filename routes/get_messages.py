@@ -11,7 +11,7 @@ class GetMessages(BaseRoute):
 
     def post(self):
         # TODO: what happens if there arent any messages?
-        messages: [Message] = Message().get_all_instances(db=self.db, order_by=Message().get_pk_column_name(), desc=True, limit=10)
+        messages: [Message] = Message().get_all_instances(db=self.db, order_by=Message().get_pk_column_name(), desc=True, limit=15)
 
         to_return: list() = list()
         for message in messages:
