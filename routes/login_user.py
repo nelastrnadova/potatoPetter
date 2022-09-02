@@ -16,6 +16,6 @@ class LoginUser(BaseRoute):
         # TODO: test
         user = User(username=self.body['username'])
         user.load(db=self.db, overwrite_cached=True)
-        if user.password == self.body['password']:  # TODO: hash; return cookie? token?
+        if user.password == User.hash_pass(self.body['password']):  # TODO: hash; return cookie? token?
             return json.dumps({"user_id": user.get_cached_pk_value()}), 200
         return json.dumps({"errors": "incorrect password"}), 400

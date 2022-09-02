@@ -1,3 +1,5 @@
+import hashlib
+
 from database.column import Column
 from database.database import Database
 from database.integer import Integer
@@ -10,6 +12,10 @@ class User(Model):
     id = Column(column_type=Integer(), primary_key=True)
     username = Column(column_type=String(30), required=True, unique=True)
     password = Column(column_type=String(255), required=True)  # TODO: hash/rehash
+
+    @staticmethod
+    def hash_pass(password: str) -> str:
+        return hashlib.md5(password.encode()).hexdigest()
 
 
 if __name__ == "__main__":
