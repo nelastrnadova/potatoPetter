@@ -134,8 +134,8 @@ class Model:
             entries.append(entry)
         return entries
 
-    def get_all_instances(self, db: Database):
-        raw_entries: [tuple] = db.select(table=self._get_table_name(), to_select="*")
+    def get_all_instances(self, db: Database, order_by: str = None, desc: bool = False, limit: int = None):
+        raw_entries: [tuple] = db.select(table=self._get_table_name(), to_select="*", order_by=order_by, desc=desc, limit=limit)
         entries: list() = list()
         col_names: [str] = list(self.cols.keys())
         for raw_entry in raw_entries:
