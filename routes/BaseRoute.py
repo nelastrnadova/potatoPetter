@@ -6,6 +6,8 @@ from database.database import Database
 
 class BaseRoute(ABC):
     def __init__(self, body: dict, db: Database):
+        if isinstance(body, str) and body == "":
+            body = "{}"  # TODO tmp fix jesus this is bandaged together get some halp
         self.body: json = json.loads(body) if isinstance(body, str) else body
         self.db: Database = db
 
