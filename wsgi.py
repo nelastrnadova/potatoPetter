@@ -53,7 +53,7 @@ def main(ip="127.0.0.1", port=8000):
                 continue
 
             try:
-                response = router(method=method, endpoint=endpoint, body=request_body)  # TODO: error handling?
+                response = router(method=method, endpoint=endpoint, body=request_body)  # TODO: error handling? pls no return triple touple w/o defaults especially
             except BaseException as e:
                 response = (json.dumps({"errors": e}), 500, "application/json")
             #  TODO: response handler
@@ -92,6 +92,9 @@ def router(method: str, endpoint: str, body: json):
     file_name: str = endpoint
     class_name: str = snake_case_to_camel_case(file_name)
     # TODO: check if exists
+    if endpoint == "":
+        from routes.index import Index
+        return Index(body=body, db=db).get()
     try:
         route_class = getattr(importlib.import_module(f"routes.{file_name}"), class_name)(body=body, db=db)
     except BaseException as e:
