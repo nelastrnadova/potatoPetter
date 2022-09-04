@@ -53,6 +53,15 @@
     <script type="application/javascript">
         let base_url = "http://89.203.249.98"
 
+        $("#new_message").bind("keypress", {}, keypressInBox);
+
+        function keypressInBox(e) {
+            var code = (e.keyCode ? e.keyCode : e.which);
+            if (code == 13) { //Enter keycode
+                send_message();
+            }
+        };
+
         function loadCat() {
             let xmlHttpReq = new XMLHttpRequest();
             xmlHttpReq.open("GET", "https://aws.random.cat/meow?ref=apilist.fun", false);
