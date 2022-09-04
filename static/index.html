@@ -9,7 +9,7 @@
         #user_id {display: none}
     </style>
 </head>
-<body>
+<body onload="loadCat()">
     <div id="user_info">
         <span>Username: </span>
         <span id="username">None</span><br>
@@ -44,9 +44,22 @@
         <span>Last Server Message:</span><br>
         <span id="server_message"></span>
     </div>
+    <br><br>
+    <div id="cat_picture_div">
+        <span>Random cat picture:</span><br>
+        <img src="" id="cat_picture" style="max-height: 250px;">
+    </div>
 
     <script type="application/javascript">
         let base_url = "http://89.203.249.98"
+
+        function loadCat() {
+            let xmlHttpReq = new XMLHttpRequest();
+            xmlHttpReq.open("GET", "https://aws.random.cat/meow?ref=apilist.fun", false);
+            xmlHttpReq.send(null);
+            let obj = JSON.parse(xmlHttpReq.responseText);
+            document.querySelector('#cat_picture').src = obj.file
+        }
 
         function send_message() {
             let xhr = new XMLHttpRequest();
