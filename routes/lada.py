@@ -3,7 +3,7 @@ from routes.BaseRoute import BaseRoute
 from utils.file import File
 
 
-class Auto(BaseRoute):
+class Lada(BaseRoute):
     def get(self):
         return File(f"{ROOT_DIR}/static/lada.html").get_content(), 200, "text/html"
 
